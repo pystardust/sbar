@@ -3,7 +3,7 @@ exec 2>&1
 printf "$$" > ~/.cache/pidofbar
 sec=0
 
-
+# MODULES
 update_cpu () { 
 	cpu="$( grep -o "^[^ ]*" /proc/loadavg )" 
 }
@@ -17,12 +17,7 @@ update_time () {
 }
 
 update_weather () { 
-	weather="$(curl -s "wttr.in/Bangalore?format=1"| sed -E "s/^(.).*\+/\1/")" 
-}
-
-update_event () { 
-	event="$(calcurse -n | sed 1d | sed -E "s_^ *\[(.*):(.*)\] ([^\t]*)\t?.*_[\1h \2m->\3]_")" 
-	[ "[]" = "$event" ] && event=""
+	weather="$(curl -s "wttr.in?format=1"| sed -E "s/^(.).*\+/\1/")" 
 }
 
 update_bat () { 
@@ -37,10 +32,6 @@ update_vol () {
 	vol="$([ "$(pamixer --get-mute)" = "false" ] && printf '🔊' || printf '🔇')$(pamixer --get-volume)%"
 }
 update_vol
-update_mic () { 
-	read -r mic < ~/.cache/micstatus
-}
-update_mic
 
 update_backlight () { 
 	read -r actual_brightness </sys/class/backlight/intel_backlight/actual_brightness
@@ -51,32 +42,36 @@ update_backlight
 
 display () { 
 	#printf "%s\n" "$event [$weather] [$memory $cpu] [$bat] [$backlight] [$mic$vol] $time "
-	xsetroot -name " $event[$weather] [$memory $cpu] [$bat] [$backlight] [$mic$vol] $time "
+	xsetroot -name " [$weather] [$memory $cpu] [$bat] [$backlight] [$vol] $time "
 }
 
 
-# signals for each module to update while updating display. RTMIN is 34
+# Signals for each module to update. RTMIN is 34
+## trap "<function to update>;display" "RTMIN+n"
+# to update it from external commands
+## kill -m "$(cat ~/.cache/pidofbar)"
+# where m = 34 + n
 trap "update_vol;display" "RTMIN"
 trap "update_backlight;display" "RTMIN+1"
-trap "update_bat;update_mic;display" "RTMIN+2"
+trap "update_bat;display" "RTMIN+2"
 
 while true
 do
 	sleep 1 & wait && { 
-		# how many seconds each module updates
-		[ $((sec % 5 )) -eq 0 ] && update_time
-		[ $((sec % 15)) -eq 0 ] && update_cpu 
+		# update interval of module in seconds
+		## [ $((sec % n)) -eq m ] && udpate_item
+		# to update item ever n seconds with a offset of m
+		[ $((sec % 5 )) -eq 0 ] && update_time 	# update time every 5 seconds
+		[ $((sec % 15)) -eq 0 ] && update_cpu 	# update cpu every 15 seconds
 		[ $((sec % 15)) -eq 0 ] && update_memory
 		[ $((sec % 60 )) -eq 0 ] && update_bat
-		[ $((sec % 300 )) -eq 1 ] && update_event
-		[ $((sec % 3600 )) -eq 2 ] && update_weather
+		# update offset so that all of them don't update on the same second
+		[ $((sec % 3600 )) -eq 2 ] && update_weather # updates weather every hour with a 2 second offset
 
-		# how often the display updates
+		# how often the display updates ( 5 secconds )
 		[ $((sec % 5 )) -eq 0 ] && display
-
 		sec=$((sec + 1))
 	}
-
 done 
 
 
