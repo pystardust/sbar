@@ -1,0 +1,82 @@
+#!/bin/sh
+exec 2>&1
+printf "$$" > ~/.cache/pidofbar
+sec=0
+
+
+update_cpu () { 
+	cpu="$( grep -o "^[^ ]*" /proc/loadavg )" 
+}
+
+update_memory () { 
+	memory="$(free -h | sed -n "2s/\([^ ]* *\)\{2\}\([^ ]*\).*/\2/p")"
+}
+
+update_time () { 
+	time="$(date "+[%a %d %b] [%I:%M %P]")" 
+}
+
+update_weather () { 
+	weather="$(curl -s "wttr.in/Bangalore?format=1"| sed -E "s/^(.).*\+/\1/")" 
+}
+
+update_event () { 
+	event="$(calcurse -n | sed 1d | sed -E "s_^ *\[(.*):(.*)\] ([^\t]*)\t?.*_[\1h \2m->\3]_")" 
+	[ "[]" = "$event" ] && event=""
+}
+
+update_bat () { 
+	read -r bat_status </sys/class/power_supply/BAT1/status
+	read -r bat_capacity </sys/class/power_supply/BAT1/capacity
+	bat="$bat_status $bat_capacity%"
+}
+
+# modules that don't update on their own
+# they are also run at the start for getting the initial value
+update_vol () { 
+	vol="$([ "$(pamixer --get-mute)" = "false" ] && printf '🔊' || printf '🔇')$(pamixer --get-volume)%"
+}
+update_vol
+update_mic () { 
+	read -r mic < ~/.cache/micstatus
+}
+update_mic
+
+update_backlight () { 
+	read -r actual_brightness </sys/class/backlight/intel_backlight/actual_brightness
+	read -r max_brightness </sys/class/backlight/intel_backlight/max_brightness
+	backlight="☀$((actual_brightness*100/max_brightness))%"
+}
+update_backlight
+
+display () { 
+	#printf "%s\n" "$event [$weather] [$memory $cpu] [$bat] [$backlight] [$mic$vol] $time "
+	xsetroot -name " $event[$weather] [$memory $cpu] [$bat] [$backlight] [$mic$vol] $time "
+}
+
+
+# signals for each module to update while updating display. RTMIN is 34
+trap "update_vol;display" "RTMIN"
+trap "update_backlight;display" "RTMIN+1"
+trap "update_bat;update_mic;display" "RTMIN+2"
+
+while true
+do
+	sleep 1 & wait && { 
+		# how many seconds each module updates
+		[ $((sec % 5 )) -eq 0 ] && update_time
+		[ $((sec % 15)) -eq 0 ] && update_cpu 
+		[ $((sec % 15)) -eq 0 ] && update_memory
+		[ $((sec % 60 )) -eq 0 ] && update_bat
+		[ $((sec % 300 )) -eq 1 ] && update_event
+		[ $((sec % 3600 )) -eq 2 ] && update_weather
+
+		# how often the display updates
+		[ $((sec % 5 )) -eq 0 ] && display
+
+		sec=$((sec + 1))
+	}
+
+done 
+
+
