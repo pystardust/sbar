@@ -4,7 +4,7 @@ Simple bar script for dwm and other window managers.
 ![screenshot](https://github.com/pystardust/sbar/blob/master/screenshot.png?raw=true)
 
 
-Inspired my dwmblocks. Written in posix.
+Inspired by dwmblocks. Written in posix.
 
 ## Features
 * Modules update with variable timing.
