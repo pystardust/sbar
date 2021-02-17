@@ -26,17 +26,17 @@ you can use printf instead of xsetroot to feed it into some other bar line lemon
 ```
 trap "update_cpu;display" "RTMIN+6"
 ```
-	* this will update cpu when signal 40=34+6 is given to the script (RTMIN = 34)
-	* to update it from external commands
-	```
-		kill -40 "$(cat ~/.cache/pidofbar)"
-	```
-	* Example from my sxhkrc
-	```
-		{XF86AudioRaiseVolume,XF86AudioLowerVolume}
-			pulsemixer --change-volume {+,-}5 ; \
-			kill -34 "$(cat ~/.cache/pidofbar)"
-	```
+* this will update cpu when signal 40=34+6 is given to the script (RTMIN = 34)
+* to update it from external commands
+```
+	kill -40 "$(cat ~/.cache/pidofbar)"
+```
+* Example from my sxhkrc
+```
+	{XF86AudioRaiseVolume,XF86AudioLowerVolume}
+		pulsemixer --change-volume {+,-}5 ; \
+		kill -34 "$(cat ~/.cache/pidofbar)"
+```
 
 
 * Add the update information in the while loops as follows
