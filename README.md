@@ -4,8 +4,8 @@ Simple bar for dwm and other window managers.
 Inspired my dwmblocks. Written in posix.
 
 ## Features
-* Modules update with variable timing
-* Signalling to update modules when needed
+* Modules update with variable timing.
+* Signalling to update modules when needed.
 
 # Setup
 
@@ -16,13 +16,13 @@ update_cpu () {
 }
 ```
 
-* Modify display function to change the positioning of output
+* Modify display function to change the positioning of output.
 ```
 display () { 
 	xsetroot -name " [$weather] [$memory $cpu] [$bat] [$backlight] [$vol] $time "
 }
 ```
-you can use printf instead of xsetroot to feed it into some other bar like lemonbar.
+You can use printf instead of xsetroot to feed it into some other bar like lemonbar.
 
 * If signalling needed then add
 ```
@@ -45,6 +45,6 @@ kill -40 "$(cat ~/.cache/pidofbar)"
 ``` 
 [ $((sec % 60)) -eq 2 ] && update_cpu
 ```
-to update item ever 60 seconds with an offset of 2 seconds.
+To update item ever 60 seconds with an offset of 2 seconds.
 
 
