@@ -1,5 +1,8 @@
 # sbar
-Simple bar for dwm and other window managers.
+Simple bar script for dwm and other window managers.
+
+![screenshot](![alt text](https://github.com/pystardust/sbar/blob/master/screenshot.jpg?raw=true)
+)
 
 Inspired my dwmblocks. Written in posix.
 
