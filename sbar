@@ -67,20 +67,19 @@ trap	"update_bat;display" 		"RTMIN+2"
 
 while true
 do
-	sleep 1 & wait && { 
-		# to update item ever n seconds with a offset of m
-		## [ $((sec % n)) -eq m ] && udpate_item
-		[ $((sec % 5 )) -eq 0 ] && update_time 	# update time every 5 seconds
-		[ $((sec % 15)) -eq 0 ] && update_cpu 	# update cpu every 15 seconds
-		[ $((sec % 15)) -eq 0 ] && update_memory
-		[ $((sec % 60)) -eq 0 ] && update_bat
-		[ $((sec % 3600)) -eq 2 ] && update_weather 
-		#[ $((sec % 300)) -eq 1 ] && update_event
+	# to update item ever n seconds with a offset of m
+	## [ $((sec % n)) -eq m ] && udpate_item
+	[ $((sec % 5 )) -eq 0 ] && update_time 	# update time every 5 seconds
+	[ $((sec % 15)) -eq 0 ] && update_cpu 	# update cpu every 15 seconds
+	[ $((sec % 15)) -eq 0 ] && update_memory
+	[ $((sec % 60)) -eq 0 ] && update_bat
+	[ $((sec % 3600)) -eq 2 ] && update_weather 
+	#[ $((sec % 300)) -eq 1 ] && update_event
 
-		# how often the display updates ( 5 seconds )
-		[ $((sec % 5 )) -eq 0 ] && display
-		sec=$((sec + 1))
-	}
+	# how often the display updates ( 5 seconds )
+	[ $((sec % 5 )) -eq 0 ] && display
+	sec=$((sec + 1))
+	sleep 1 & wait
 done 
 
 
